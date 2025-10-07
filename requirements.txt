@@ -1,0 +1,14 @@
+# Daten Analyse
+pandas==2.3.3
+numpy==2.3.3
+
+# Maschinelles lernen
+scikit-learn==1.7.2
+
+#Visualisierungen
+seaborn==0.13.2
+matplotlib==3.10.6
+
+# copulas
+copulas==0.12.3
+sdv==1.27.0
