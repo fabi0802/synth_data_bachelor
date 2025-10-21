@@ -61,7 +61,7 @@ def generate_orders(df_sample: pd.DataFrame, n_orders = n_orders_tag):
     synthetic_orders['Datum'] = pd.to_datetime(synthetic_orders['Datum'], unit='D', origin=min_date)
 
     # Nearest-Neighbor-Mapping auf reale Tage
-    allowed_dates = pd.to_datetime(sorted(df['Datum'].unique()))
+    allowed_dates = pd.to_datetime(sorted(df_sample['Datum'].unique()))
     allowed_numeric = (allowed_dates - min_date).days.values
 
     synthetic_orders['Datum'] = synthetic_orders['Datum_numeric'].apply(
