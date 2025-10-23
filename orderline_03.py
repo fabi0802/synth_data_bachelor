@@ -64,5 +64,7 @@ def generate_orderlines(df_sample:pd.DataFrame, synthetic_orders:pd.DataFrame):
     else:
         synthetic_positions_df = pd.DataFrame(columns=['Artikelnummer', 'Markierung', 'MengeInKolli', 'cluster_v3'])
 
+    synthetic_positions_df = synthetic_positions_df.rename(columns={'cluster_v3': 'cluster'})
+    
     return synthetic_positions_df
 
