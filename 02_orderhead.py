@@ -53,7 +53,7 @@ def generate_orders(df_sample: pd.DataFrame, n_orders = n_orders_tag):
     synthetic_orders['Marktnummer'] = le_markt.inverse_transform(synthetic_orders['Marktnummer_enc'])
     synthetic_orders.drop(columns=['Marktnummer_enc'], inplace=True)
 
-    # Plausibilität bei den Bestellzeilen
+    # Plausibilität bei den Bestellungen
     synthetic_orders['orderlines'] = synthetic_orders['orderlines'].round().astype(int).clip(lower=1)
 
     # Rücktransformieren der Datums Spalte
