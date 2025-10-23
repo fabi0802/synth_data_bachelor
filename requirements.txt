@@ -1,6 +1,7 @@
 # Daten Analyse
 pandas==2.3.3
 numpy==2.3.3
+pyarrow==21.0
 
 # Maschinelles lernen
 scikit-learn==1.7.2
