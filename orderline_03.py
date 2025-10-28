@@ -4,8 +4,16 @@ from sklearn.preprocessing import LabelEncoder
 from copulas.multivariate import GaussianMultivariate
 from copulas.univariate import GaussianKDE
 
-def generate_orderlines(df_sample:pd.DataFrame, synthetic_orders:pd.DataFrame):
-      
+def generate_orderlines(df_sample:pd.DataFrame, synthetic_orders:pd.DataFrame) -> pd.DataFrame:
+    ''' Generierung und Anpassung der Bestellpositionen
+
+    Args:
+        df_sample (pd.DataFrame): Stichproben DataFrame
+        synthetic_orders (pd.DataFrame): Generierte Bestell
+    
+    Returns:
+        synthetic_orderlines: Synthetische Bestellpositionen
+    '''
     # DataFrame auf relevante Spalten reduzieren
     df_sample = df_sample[['Artikelnummer', 'MengeInKolli', 'Markierung', 'cluster']]
 

@@ -10,7 +10,7 @@ scikit-learn==1.7.2
 seaborn==0.13.2
 matplotlib==3.10.6
 
-# copulas
+# Copulas
 copulas==0.12.3
 sdv==1.27.0
 

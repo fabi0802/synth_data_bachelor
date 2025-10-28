@@ -6,8 +6,8 @@ from copulas.univariate import GaussianKDE
 
 n_orders_tag = 1
 
-def generate_orders(df_sample: pd.DataFrame, n_orders = n_orders_tag):
-    ''' Generierung und Anpassung der Orderköpfe
+def generate_orders(df_sample: pd.DataFrame, n_orders = n_orders_tag) -> pd.DataFrame:
+    ''' Generierung und Anpassung der Bestellköpfe
     
     Args:
         df_sample (pd.DataFrame): Stichproben DataFrame
