@@ -6,7 +6,7 @@ from sklearn.cluster import KMeans
 RANDOM_SEED = 42
 
 def sampling(df:pd.DataFrame, SAMPLING_NR:int) -> pd.DataFrame:
-    '''Gruppiert den Datensatz auf Bestellebene und extrahiert eine Stichprobe.
+    '''Erstellung einer Bestell_ID und extrahiert eine Stichprobe.
     
     Args:
         df (DataFrame): Vollständiges Orderline Dataframe.

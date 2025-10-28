@@ -1,9 +1,9 @@
 import pandas as pd
-from clustering_01 import sampling, kmean_cluster, n_orders
-from orderhead_02 import generate_orders
-from orderline_03 import generate_orderlines
-from combine_04 import combine_orderlines_order
-from analytics_10 import orderkopf_auswertung, orderline_auswertung
+from src.clustering import sampling, kmean_cluster, n_orders
+from src.orderhead import generate_orders
+from src.orderline import generate_orderlines
+from src.combine import combine_orderlines_order
+from src.analytics import orderkopf_auswertung, orderline_auswertung
 
 SAMPLING_NR = 5000
 RANDOM_SEED = 42
