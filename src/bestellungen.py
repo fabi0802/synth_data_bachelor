@@ -54,32 +54,7 @@ def kmeans_cluster_bestellungen(df: pd.DataFrame, random_seed=42, k=2) -> pd.Dat
 
 def synth_bestellungen(df_bestellungen: pd.DataFrame, df_maerkte: pd.DataFrame, synth_maerkte: pd.DataFrame) -> pd.DataFrame:
     """
-    Generate synthetic orders based on clustered order and market data using Gaussian copula models.
 
-    This function creates synthetic order data by first merging market cluster information with order clusters,
-    computing the distribution of order clusters within market clusters, training Gaussian multivariate models
-    for each order cluster, and then sampling synthetic orders for each synthetic market while preserving
-    the cluster relationships and temporal patterns.
-
-    Args:
-        df_bestellungen (pd.DataFrame): Clustered order data from kmeans_cluster_bestellungen, containing
-            order-level aggregations with columns like 'Marktnummer', 'Datum', 'Wochentag', 'orderlines',
-            'diff_sortimente', and 'cluster'.
-        df_maerkte (pd.DataFrame): Clustered market data from kmeans_cluster_maerkte, containing at least
-            'Marktnummer' and 'cluster' columns.
-        synth_maerkte (pd.DataFrame): Synthetic market data from synth_maerkte, containing 'Marktnummer',
-            'cluster', and 'orders' columns representing the number of orders to generate per market.
-
-    Returns:
-        pd.DataFrame: Synthetic orders DataFrame with columns including 'Datum', 'Wochentag', 'orderlines',
-            'diff_sortimente', 'Marktnummer', 'cluster_bestellungen', and 'cluster_markt'. The synthetic
-            data preserves the statistical properties and relationships of the original clustered data.
-
-    Notes:
-        - Uses GaussianMultivariate with GaussianKDE for modeling multivariate distributions.
-        - Ensures order counts match the specified 'orders' per market by adjusting for rounding errors.
-        - Maps synthetic dates to the nearest real dates from the training data to maintain temporal validity.
-        - Clips synthetic values to reasonable bounds (e.g., orderlines >= 1, weekdays 0-6).
     """
     # Markt Cluster an die Bestellcluster dazuholen bspw.  Marktcluster 0 = (80% Betellcluster 0 & 20% Bestellcluster 1)
     df_bestellungen = pd.merge(
