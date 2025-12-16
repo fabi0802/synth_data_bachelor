@@ -6,25 +6,28 @@ from copulas.univariate import GaussianKDE
 import numpy as np
 
 def kmeans_cluster_maerkte(df:pd.DataFrame, random_seed=42, k=3) -> pd.DataFrame:
-    '''Gruppierung und Clustering auf Marktebene.
+    '''Gruppierung der originalen Bestellpositionen auf Markebene.
+    
+    Anschließendes standardisieren mittels Standardscalar() und clustering mittels kMeans, vorgegebenen Seeds + Cluster Anzahl.
     
     Args:
-        df (DataFrame): Vollständiges Orderline Dataframe.
-        random_seed (Integer): Ist auf 42 festgeschrieben, Seed für das Cluster
-        k (Integer): Ist auf 3 festgeschrieben, nach Test in find_best_k.ipynb, Anzahl Cluster
+        df (DataFrame): Originale Bestellpositionen
+        random_seed (Integer): Startwert für den Zufallsgenerator (Reproduzierungsgründe)
+        k (Integer): Anzahl der zu erzeugende Cluster. Festgesetzt auf k=3 nach Erkenntnissen aus find_best_k.ipynb
     
     Returns:
-        df: Gruppiertes DataFrame auf Marktebene und cluster Kennzeichen 
+        df_maerkte (DataFrame): Auf Marktebene geclusterte Bestellpositionen mit den Kennzahlen diff_article, avg_kolli, orders und Informationen über das zugeordnete cluster 
     '''
     df_maerkte = df.copy()
 
+    # Erzeugung einer Fake "order_id" mit der Annahme, dass max einmal pro Tag bestellt wird
     df_maerkte['order_id'] = df_maerkte.groupby(['Marktnummer', 'Datum']).ngroup()
 
     # Gruppierung auf Marktebene 
     df_maerkte = df_maerkte.groupby('Marktnummer').agg({
-        'Artikelnummer': 'nunique',     # Wie viele verschiedene Artikel hat Markt X über Zeitraum Y bestellt?
-        'MengeInKolli': 'median',       # Wie viele Kolli bestellt der Markt im Durchschnitt pro Bestellposition?
-        'order_id': 'nunique'           # Wie viele Bestellungen hat der Markt X über Zeitraum Y getätigt?
+        'Artikelnummer': 'nunique',     # Anzahl unterschiedlicher Artikel, welche der Markt bestellt hat
+        'MengeInKolli': 'median',       # Durchschnittliche bestellte Kolli Menge pro Markt
+        'order_id': 'nunique'           # Anzahl an Bestellungen, welche der Markt getätigt hat
     }).rename(columns={
         'Artikelnummer': 'diff_article',    # different_article
         'MengeInKolli': 'avg_kolli',        # avergae_kolli
@@ -33,7 +36,7 @@ def kmeans_cluster_maerkte(df:pd.DataFrame, random_seed=42, k=3) -> pd.DataFrame
 
     labels = df_maerkte[['diff_article', 'avg_kolli', 'orders']].copy()
 
-    # Standardisierung der verschiedene Metriken mit StandardScalar
+    # Standardisierung der verschiedene Variablen mit StandardScalar
     scalar = StandardScaler()
     x_scaled_k3 = scalar.fit_transform(labels)
 
@@ -46,14 +49,18 @@ def kmeans_cluster_maerkte(df:pd.DataFrame, random_seed=42, k=3) -> pd.DataFrame
     return df_maerkte
 
 def synth_maerkte(df_maerkte: pd.DataFrame, maerkte_count: int) -> pd.DataFrame:
-    '''Generierung von synthetischen Märkten.
+    '''Generierung von synthetischen Märkten auf Basis der geclusterten Märkte in kmeans_cluster_maerkte.
+
+    Für jedes cluster wird die relationale Bedeutung der cluster berechnet um eine passende Anzahl an Märkten pro cluster zu generieren.
+    Es werden die Spalten 'diff_article', 'avg_kolli' & 'orders' als Grundlage für die Generierung mittels GaussianKDE verwendet.
+    Anschließend werden die neu erzeugten Werte gerundet, geclipped um Plausibilität der Werte zu gewährleisten
     
     Args:
-        df_maerkte (DataFrame): Gruppierter Marktdatensatz aus kmeans_cluster_maerkte
+        df_maerkte (DataFrame): Cluster Marktdatensatz aus kmeans_cluster_maerkte
         maerkte_count (Integer): Anzahl zu generierenden Märkten 
     
     Returns:
-        df: Synthetischer Marktdatensatz'''
+        synthetic_maerkte (DataFrame): Synthetischer Marktdatensatz'''
 
     allowed_cluster = df_maerkte['cluster'].unique()
     allowed_share = df_maerkte['cluster'].value_counts(normalize=True)
@@ -64,7 +71,7 @@ def synth_maerkte(df_maerkte: pd.DataFrame, maerkte_count: int) -> pd.DataFrame:
 
         df_maerkte_cluster = df_maerkte[df_maerkte['cluster'] == cluster_id]
         
-        # Relationalisierung der zu generierenden Märkten
+        # Wie war das Verhältnis der cluster beim originalen Datensatz und wie wäre das bei den zu erzeugendn Märkten?
         n_cluster = int(round(maerkte_count * allowed_share.loc[cluster_id]))
 
         # Columns für Generierung

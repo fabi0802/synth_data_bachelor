@@ -8,15 +8,17 @@ import numpy as np
 
 def kmeans_cluster_bestellungen(df: pd.DataFrame, random_seed=42, k=2) -> pd.DataFrame:
     '''
-    Kategorisierung der Bestellungen mittels kMean-clustering
+    Gruppierung der originalen Bestellpositionen auf Bestellebene.
+
+    Anschließendes standardisieren mittels Standardscalar() und clustering mittels kMeans, vorgegebenen Seeds + Cluster Anzahl.
     
     Args:
-        df (pd.DataFrame): Original df
-        random_seed (Integer): Ist auf 42 festgeschrieben, Seed für das Cluster
-        k (Integer): Ist auf 3 festgeschrieben, nach Test in find_best_k.ipynb, Anzahl Cluster
+        df (pd.DataFrame): Originale Bestellpositionen
+        random_seed (Integer): Startwert für den Zufallsgenerator (Reproduzierungsgründe)
+        k (Integer): Anzahl der zu erzeugende Cluster. Festgesetzt auf k=2 nach Erkenntnissen aus find_best_k.ipynb
          
     Returns:
-        df: Gruppiertes DataFrame auf Bestellebene und cluster Kennzeichen
+        df_bestellungen (DataFrame): Auf Bestelleben geclusterte Bestellpositionen mit den Kennzahlen diff_article, avg_kolli, orders und Informationen über das zugeordnete cluster 
     '''
     df_bestellugnen = df.copy()
 
@@ -53,9 +55,26 @@ def kmeans_cluster_bestellungen(df: pd.DataFrame, random_seed=42, k=2) -> pd.Dat
     return df_bestellugnen
 
 def synth_bestellungen(df_bestellungen: pd.DataFrame, df_maerkte: pd.DataFrame, synth_maerkte: pd.DataFrame) -> pd.DataFrame:
-    """
+    """Generiert synthetische Bestelldaten basierend auf historischen Verteilungen und Markt-Clustern.
 
-    """
+        Zu Beginn wird an den gruppierten Bestelldatensatz aus k_means_cluster_bestellungen die Marktcluster aus k_means_cluster_maerkte angefügt.
+        Dabei wird die Wahrscheinlichkeit, dass ein bestimmtes Bestell-Cluster in einem Markt-Cluster auftritt, über eine
+        Kreuztabelle berücksichtigt.
+
+        Pro Bestellcluster werden die Spalten 'Datum_num', 'Wochentag', 'orderlines' & 'diff_sortimente' als Grundlage für die Generierung mittels GaussianKDE verwendet.
+
+        Für jede Zeile/ synthetischen Markt aus synth_maerkte wird ein passendes sampling gezogen unter Betrachtung der bestellcluster und marktcluster
+
+        Rückrechnung von numerischen datumswerten auf echte Kalendertage
+
+        Args:
+            df_bestellungen (pd.DataFrame): Cluster Bestelldatensatz aus kmeans_cluster_bestellungen
+            df_maerkte (pd.DataFrame): Cluster Marktdatensatz aus kmeans_cluster_maerkte
+            synth_maerkte (pd.DataFrame): Synthetischer Marktdatensatz
+
+        Returns:
+            synthetic_bestellungen (pd.DataFrame): Synthetischer Bestelldatensatz
+        """
     # Markt Cluster an die Bestellcluster dazuholen bspw.  Marktcluster 0 = (80% Betellcluster 0 & 20% Bestellcluster 1)
     df_bestellungen = pd.merge(
         df_bestellungen,
@@ -72,7 +91,7 @@ def synth_bestellungen(df_bestellungen: pd.DataFrame, df_maerkte: pd.DataFrame, 
         normalize='index'
     )
 
-    # Iterieren über die for-Schleife
+    # Eindeutige cluster_ids bestimmen
     cluster_bestellungen_unq = df_bestellungen['cluster_bestellungen'].unique()
     
     # Speichern der models zum generieren
@@ -173,5 +192,4 @@ def synth_bestellungen(df_bestellungen: pd.DataFrame, df_maerkte: pd.DataFrame, 
     synthetic_bestellungen['order_id'] = np.arange(1, len(synthetic_bestellungen) + 1)
 
     return synthetic_bestellungen
-
 
