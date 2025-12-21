@@ -58,7 +58,7 @@ def synth_bestellpositionen(df: pd.DataFrame, df_bestellungen: pd.DataFrame, syn
         # Orderline Generierung
         # Zufällige Ziehung (Durch Häufigkeit, werden "beliebte Artikel" automatisch häufiger vorkommen)
         artikel = rng.choice(artikel_pool[bc], size=n, replace=True)
-        mengen  = rng.random.choice(menge_pool[bc],   size=n, replace=True)
+        mengen  = rng.choice(menge_pool[bc],   size=n, replace=True)
 
         # Plausibilisierung
         mengen = np.maximum(1, np.rint(mengen).astype(int))

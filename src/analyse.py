@@ -7,106 +7,55 @@ from datetime import datetime
 
 def vergleich_real_synth_maerkte(real_maerkte_v2: pd.DataFrame, synth_maerkte_v2: pd.DataFrame) -> pd.DataFrame:
 
+    # Kennzahlen welche verglichen werden sollen
+    unq_variable = ['diff_article', 'orders', 'avg_kolli']
+    unq_cluster = real_maerkte_v2['cluster'].unique()
+
     rows = []
 
-    for i in range(0,3):
+    # Für jede Variable
+    for variable in unq_variable:
 
-        real_maerkte = real_maerkte_v2.copy()
-        real_maerkte = real_maerkte[real_maerkte['cluster'] == i]
+        # Für jedes Cluster
+        for cluster in unq_cluster:
+            rows.append({
+                "cluster": cluster,
+                "variable": variable,
+                "metrik": "median",
+                "real": real_maerkte_v2.loc[real_maerkte_v2['cluster'] == cluster][variable].median(),
+                "synth": synth_maerkte_v2.loc[synth_maerkte_v2['cluster'] == cluster][variable].median()
+            })
 
-        synth_maerkte = synth_maerkte_v2.copy()
-        synth_maerkte = synth_maerkte[synth_maerkte['cluster'] == i]
+        for cluster in unq_cluster: 
+            rows.append({
+                "cluster": cluster,
+                "variable": variable,
+                "metrik": "stdv",
+                "real": real_maerkte_v2.loc[real_maerkte_v2['cluster'] == cluster][variable].std(),
+                "synth": synth_maerkte_v2.loc[synth_maerkte_v2['cluster'] == cluster][variable].std()
+            })
 
-        rows.append({
-            "cluster": i,
-            "variable": "diff_article",
-            "metrik": "median",
-            "real": real_maerkte['diff_article'].median(),
-            "synth": synth_maerkte['diff_article'].median()
-        })
-
-        rows.append({
-            "cluster": i,
-            "variable": "diff_article",
-            "metrik": "stdv",
-            "real": real_maerkte['diff_article'].std(),
-            "synth": synth_maerkte['diff_article'].std()
-        })
-
-        rows.append({
-            "cluster": i,
-            "variable": "diff_article",
-            "metrik": "kolmogorov-smirnov Test",
-            "real & synth": ks_2samp(real_maerkte["diff_article"], synth_maerkte["diff_article"])
-        })
-
-        rows.append({
-            "cluster": i,
-            "variable": "diff_article",
-            "metrik": "Wasserstein Distanz Test",
-            "real & synth": wasserstein_distance(real_maerkte["diff_article"], synth_maerkte["diff_article"])
-        })
-
-        rows.append({
-            "cluster": i,
-            "variable": "avg_kolli",
-            "metrik": "median",
-            "real": real_maerkte['avg_kolli'].median(),
-            "synth": synth_maerkte['avg_kolli'].median()
-        })
-
-        rows.append({
-            "cluster": i,
-            "variable": "avg_kolli",
-            "metrik": "stdv",
-            "real": real_maerkte['avg_kolli'].std(),
-            "synth": synth_maerkte['avg_kolli'].std()
-        })
-
-        rows.append({
-            "cluster": i,
-            "variable": "avg_kolli",
-            "metrik": "kolmogorov-smirnov Test",
-            "real & synth": ks_2samp(real_maerkte["avg_kolli"], synth_maerkte["avg_kolli"])
-        })
-
-        rows.append({
-            "cluster": i,
-            "variable": "avg_kolli",
-            "metrik": "Wasserstein Distanz Test",
-            "real & synth": wasserstein_distance(real_maerkte["avg_kolli"], synth_maerkte["avg_kolli"])
-        })
-
-        rows.append({
-            "cluster": i,
-            "variable": "orders",
-            "metrik": "mean",
-            "real": real_maerkte['orders'].median(),
-            "synth": synth_maerkte['orders'].median()
-        })
-
-        rows.append({
-            "cluster": i,
-            "variable": "orders",
-            "metrik": "stdv",
-            "real": real_maerkte['orders'].std(),
-            "synth": synth_maerkte['orders'].std()
-        })
-
-        rows.append({
-            "cluster": i,
-            "variable": "orders",
-            "metrik": "kolmogorov-smirnov Test",
-            "real & synth": ks_2samp(real_maerkte["orders"], synth_maerkte["orders"])
-        })
-
-        rows.append({
-            "cluster": i,
-            "variable": "orders",
-            "metrik": "Wasserstein Distanz Test",
-            "real & synth": wasserstein_distance(real_maerkte["orders"], synth_maerkte["orders"])
-        })
-
+        for cluster in unq_cluster: 
+            rows.append({
+                "cluster": cluster,
+                "variable": variable,
+                "metrik": "Wasserstein Matrik",
+                "real&synth": wasserstein_distance(
+                real_maerkte_v2.loc[real_maerkte_v2['cluster'] == cluster][variable],
+                synth_maerkte_v2.loc[synth_maerkte_v2['cluster'] == cluster][variable]
+                )    
+            })
+        
+        for cluster in unq_cluster:
+            rows.append({
+                "cluster": cluster,
+                "variable": variable,
+                "metrik": "KS-Test",
+                "real&synth": ks_2samp(
+                real_maerkte_v2.loc[real_maerkte_v2['cluster'] == cluster][variable],
+                synth_maerkte_v2.loc[synth_maerkte_v2['cluster'] == cluster][variable]
+                )    
+            })
 
     df_auswertung = pd.DataFrame(rows)
 
@@ -139,4 +88,111 @@ def vergleich_real_synth_maerkte_visual(real_maerkte: pd.DataFrame, synth_maerkt
 
 def vergleich_real_synth_bestellungen(real_bestellungen_v2: pd.DataFrame, synth_bestellungen_v2: pd.DataFrame) -> pd.DataFrame:
 
+    # Vorbereitung synth_bestellungen
+    synth_bestellungen_v2 = synth_bestellungen_v2.rename(columns={
+        'cluster_bestellungen': 'cluster'
+    })
+
+    # Kennzahlen welche verglichen werden sollen
+    unq_variable = ['Wochentag', 'orderlines', 'diff_sortimente']
+    unq_cluster = real_bestellungen_v2['cluster'].unique()
+
+    rows = []
+
+    # Für jede Variable
+    for variable in unq_variable:
+
+        # Für jedes cluster
+        for cluster in unq_cluster:
+            rows.append({
+                "cluster": cluster,
+                "variable": variable,
+                "metrik": "median",
+                "real": real_bestellungen_v2.loc[real_bestellungen_v2['cluster'] == cluster][variable].median(),
+                "synth": synth_bestellungen_v2.loc[synth_bestellungen_v2['cluster'] == cluster][variable].median()
+            })
+        
+        for cluster in unq_cluster:
+            rows.append({
+                "cluster": cluster,
+                "variable": variable,
+                "metrik": "mean",
+                "real": real_bestellungen_v2.loc[real_bestellungen_v2['cluster'] == cluster][variable].mean(),
+                "synth": synth_bestellungen_v2.loc[synth_bestellungen_v2['cluster'] == cluster][variable].mean()
+            })
+
+        for cluster in unq_cluster:
+            rows.append({
+                "cluster": cluster,
+                "variable": variable,
+                "metrik": "stdv",
+                "real": real_bestellungen_v2.loc[real_bestellungen_v2['cluster'] == cluster][variable].std(),
+                "synth": synth_bestellungen_v2.loc[synth_bestellungen_v2['cluster'] == cluster][variable].std()
+            })
+
+        for cluster in unq_cluster: 
+            rows.append({
+                "cluster": cluster,
+                "variable": variable,
+                "metrik": "Wasserstein Matrik",
+                "real&synth": wasserstein_distance(
+                real_bestellungen_v2.loc[real_bestellungen_v2['cluster'] == cluster][variable],
+                synth_bestellungen_v2.loc[synth_bestellungen_v2['cluster'] == cluster][variable]
+                )    
+            })
+
+        for cluster in unq_cluster:
+            rows.append({
+                "cluster": cluster,
+                "variable": variable,
+                "metrik": "KS-Test",
+                "real&synth": ks_2samp(
+                real_bestellungen_v2.loc[real_bestellungen_v2['cluster'] == cluster][variable],
+                synth_bestellungen_v2.loc[synth_bestellungen_v2['cluster'] == cluster][variable]
+                )    
+            })
+
+    df_auswertung = pd.DataFrame(rows)
+
+    return df_auswertung
+
+def vergleich_real_synth_bestellungen_visual(real_bestellungen: pd.DataFrame, synth_bestellungen:pd.DataFrame):
+
+    jetzt = datetime.now()
+
+    # Synth Bestellungen bereinigen
+    synth_bestellungen = synth_bestellungen.drop(columns=['cluster_markt']).rename(columns={
+        'cluster_bestellungen': 'cluster'
+    }).reset_index()
+
+    real_bestellungen['Kategorie'] = "real"
+    synth_bestellungen['Kategorie'] = "synth"
+
+    bestellungen = pd.concat([real_bestellungen, synth_bestellungen])
+
+    fig, axes = plt.subplots(2, 2, figsize=(14, 7))
+    axes = axes.flatten()
+
+    sns.histplot(data=bestellungen, x="Wochentag", hue="Kategorie", ax=axes[0], stat='density', legend=True)
+    axes[0].set_title("Verteilung 'Wochentagen' zwischen realen und synthtischen Bestellungen")
+
+    sns.histplot(data=bestellungen, x="orderlines", hue="Kategorie", ax=axes[1], stat='density', legend=True)
+    axes[1].set_title("Verteilung 'orderlines' zwischen realen und synthtischen Bestellungen")
+
+    sns.histplot(data=bestellungen, x="diff_sortimente", hue="Kategorie", ax=axes[2], stat='density', legend=True)
+    axes[2].set_title("Verteilung 'diff_sortimente' zwischen realen und synthtischen Bestellungen")
+
+    fig.savefig(f'reports/figures/auswertung_bestellungen{jetzt:%Y_%m_%d_%H_%M}.png')
+
+    return
+
+def vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2: pd.DataFrame, synth_bestellpositionen_v2: pd.DataFrame) -> pd.DataFrame:
+    
+    statistik = {
+        "real"
+    }
+    
+    
+    
+    
     pass
