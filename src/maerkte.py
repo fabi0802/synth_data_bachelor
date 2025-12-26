@@ -105,7 +105,7 @@ def synth_maerkte(df_maerkte: pd.DataFrame, maerkte_count: int) -> pd.DataFrame:
 
     return synthetic_maerkte
 
-def synth_maerkte_custom(df_maerkte: pd.DataFrame, maerkte_count: int, cluster_0_rel: float, cluster_1_rel: float, cluster_2_rel: float) -> pd.DataFrame:
+def synth_maerkte_custom(df_maerkte: pd.DataFrame, maerkte_count: int, marktmix_override: dict) -> pd.DataFrame:
     '''Generierung von synthetischen Märkten auf Basis der geclusterten Märkte in kmeans_cluster_maerkte und eigenen Cluster Angaben.
 
     Für jedes cluster wird auf Basis der cluster eingaben Märkten pro cluster zu generiert.
@@ -124,11 +124,7 @@ def synth_maerkte_custom(df_maerkte: pd.DataFrame, maerkte_count: int, cluster_0
 
     allowed_cluster = df_maerkte['cluster'].unique()
 
-    allowed_share = {
-        0: cluster_0_rel,
-        1: cluster_1_rel,
-        2: cluster_2_rel
-    }
+    allowed_share = marktmix_override
 
     synthetic_parts = []
 
