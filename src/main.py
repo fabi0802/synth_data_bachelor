@@ -2,11 +2,11 @@ import pandas as pd
 from datetime import datetime
 from maerkte import kmeans_cluster_maerkte, synth_maerkte
 from bestellungen import kmeans_cluster_bestellungen, synth_bestellungen
-from bestellpositionen import synth_bestellpositionen
-from analyse import vergleich_real_synth_maerkte, vergleich_real_synth_maerkte_visual, vergleich_real_synth_bestellungen, vergleich_real_synth_bestellungen_visual
+from bestellpositionen import synth_bestellpositionen, synth_bestellpositionen_sortiment, synth_bestellpositionen_sortiment_2
+from analyse import vergleich_real_synth_maerkte, vergleich_real_synth_maerkte_visual, vergleich_real_synth_bestellungen, vergleich_real_synth_bestellungen_visual, vergleich_real_synth_bestellpositionen
 
 jetzt = datetime.now()
-generiere_kunden = 41
+generiere_kunden = 409
 
 df = pd.read_parquet('data/raw/orderlines_dezember.parquet')
 
@@ -25,7 +25,7 @@ df_bestellungen = kmeans_cluster_bestellungen(df_bestellungen)
 df_neue_bestellungen = synth_bestellungen(df_bestellungen, df_maerkte, df_neue_maerkte)
 
 # Neue Bestellpositionen generieren & abspeichern
-df_neue_bestellpositionen = synth_bestellpositionen(df, df_bestellungen, df_neue_bestellungen)
+df_neue_bestellpositionen = synth_bestellpositionen_sortiment_2(df, df_bestellungen, df_neue_bestellungen)
 
 df_neue_bestellpositionen.to_parquet(f'data/processed/synth_data_{jetzt:%Y_%m_%d_%H_%M}.parquet')
 
@@ -42,3 +42,7 @@ Abgleich_bestellungen.to_excel(f'reports/summary/bestellkopf_kennzahlen_{jetzt:%
 
 # Visuelle Verteilungen zwischen realen & synthetischen Bestellungen
 vergleich_real_synth_bestellungen_visual(df_bestellungen, df_neue_bestellungen)
+
+# Kenzahlen Vergeich zwischen realen & synthetischen Bestellpositionen
+Abgleich_bestellpositinen = vergleich_real_synth_bestellpositionen(df, df_neue_bestellpositionen)
+Abgleich_bestellpositinen.to_excel(f'reports/summary/bestellpositionen_kennzahlen_{jetzt:%Y_%m_%d_%H_%M}.xlsx')

@@ -188,11 +188,61 @@ def vergleich_real_synth_bestellungen_visual(real_bestellungen: pd.DataFrame, sy
 
 def vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2: pd.DataFrame, synth_bestellpositionen_v2: pd.DataFrame) -> pd.DataFrame:
     
-    statistik = {
-        "real"
-    }
+    statistik = []
+
+    statistik.append({
+        "variable": "MengeInKolli",
+        "metrik": "mean",
+        "real": real_bestellpositionen_v2['MengeInKolli'].mean(),
+        "synth": synth_bestellpositionen_v2['MengeInKolli'].mean(),
+    })
+
+    statistik.append({
+        "variable": "MengeInKolli",
+        "metrik": "median",
+        "real": real_bestellpositionen_v2['MengeInKolli'].median(),
+        "synth": synth_bestellpositionen_v2['MengeInKolli'].median(),
+    })
+
+    statistik.append({
+        "variable": "MengeInKolli",
+        "metrik": "stdv",
+        "real": real_bestellpositionen_v2['MengeInKolli'].std(),
+        "synth": synth_bestellpositionen_v2['MengeInKolli'].std(),
+    })
+
+    statistik.append({
+                "variable": "MengeInKolli",
+                "metrik": "Wasserstein Metrik",
+                "real&synth": wasserstein_distance(
+                real_bestellpositionen_v2["MengeInKolli"],
+                synth_bestellpositionen_v2["MengeInKolli"]
+                )    
+            })
     
+    statistik.append({
+                "variable": "MengeInKolli",
+                "metrik": "Wasserstein Metrik",
+                "real&synth": ks_2samp(
+                real_bestellpositionen_v2["MengeInKolli"],
+                synth_bestellpositionen_v2["MengeInKolli"]
+                )    
+            })
     
+    statistik.append({
+        "variable": "Artikelnummer",
+        "metrik": "nunique",
+        "real": real_bestellpositionen_v2['Artikelnummer'].nunique(),
+        "synth": synth_bestellpositionen_v2['Artikelnummer'].nunique(),
+    })
+
+    statistik.append({
+        "variable": "Artikelnummer",
+        "metrik": "mode",
+        "real": real_bestellpositionen_v2['Artikelnummer'].mode(),
+        "synth": synth_bestellpositionen_v2['Artikelnummer'].mode(),
+    })
+
+    df_auswertung = pd.DataFrame(statistik)
     
-    
-    pass
+    return df_auswertung
