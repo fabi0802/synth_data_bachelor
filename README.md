@@ -23,50 +23,39 @@ pip install -r requirements.txt
 
 --------
 
-    ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
     ├── README.md          <- The top-level README for developers using this project.
-    ├── data
-    │   ├── external       <- Data from third party sources.
+    ├── data/
     │   ├── interim        <- Intermediate data that has been transformed.
     │   ├── processed      <- The final, canonical data sets for modeling.
     │   └── raw            <- The original, immutable data dump.
     │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
-    │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
-    │
-    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's initials, and a short `-` delimited description, e.g.
-    │                         `1.0-jqp-initial-data-exploration`.
-    │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-    │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
+    ├── notebooks/                
+    │   ├── 01_test.ipynb                           
+    │   └── find_best_k.ipynb                         
+    │                                                 
+    ├── reports/            
+    │   ├── figures        <- Generated graphics and figures to be used in reporting
+    │   └── summary        <- Generatd KPI reports as xlsx
     │
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
     │                         generated with `pip freeze > requirements.txt`
     │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
-    ├── src                <- Source code for use in this project.
+    ├── src/               <- Source code for use in this project.
     │   ├── __init__.py    <- Makes src a Python module
     │   │
-    │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
+    │   ├── analyse.py           <- Scripts analyze the real and synthetic data
     │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
+    │   ├── bestellpositionen.py       <- Scripts for creating synthetic orderlines
     │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
-    │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │       └── visualize.py
+    │   ├── bestellungen.py         <- Scripts for generating synthtic orderheads
+    │   │                   
+    │   ├── maerkte.py              <- Scripts for generating synthetic markets (customer)   
+    │   │  
+    │   └── main.py                 <- Script for the main module
+    │   
+    │     
     │
-    └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
+    └── .gitignore                  <- File fpr git to ignore
 
 
 --------
