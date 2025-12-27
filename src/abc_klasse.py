@@ -179,3 +179,35 @@ def abc_analyse_plot(abc_df):
     plt.savefig(f'reports/figures/auswertung_abc_analyse{jetzt:%Y_%m_%d_%H_%M}.png')
 
     return
+
+def abc_zusammenfassung_neu(orig_df:pd.DataFrame, synth_df:pd.DataFrame):
+    '''
+    Erstellt im ersten Schritt eine mengenbasierte ABC-Analyse auf Basis der original Bestellpositionen.
+    Im zweiten Schritt wird eine mengenbasierte ABC-Analyse auf Basis der verknüpften original und synthetischen Bestellpositionen durchgeführt
+    Im letzten Schritt werden beiden Analysen gemerged für einen Vergleich der Ergebnisse
+
+    Args:
+        orig_df (DataFrame): Original Bestellpositionen
+        synth_df (DataFrame): Synthetische Bestellpositionen
+
+    Returns:
+        abc (DataFrame): DataFrame mit den Spalten Artikelnummer, MengenInKolli, anteil und abc_klasse für das jeweilige df
+    '''
+    # Verknüpfung Synth & Original-Daten + ABC-Analyse
+    orig_df_reduziert = orig_df[['Datum', 'Marktnummer', 'Artikelnummer', 'MengeInKolli']].copy()
+    synth_df_reduziert = synth_df[['Datum', 'Marktnummer', 'Artikelnummer', 'MengeInKolli']].copy()
+
+    df_combined = pd.concat([orig_df_reduziert, synth_df_reduziert])
+
+    new_abc = (
+        df_combined.groupby('Artikelnummer')['MengeInKolli'].sum()
+        .sort_values(ascending=False).reset_index()
+    )
+    new_abc['anteil'] = new_abc['MengeInKolli'] / new_abc['MengeInKolli'].sum()
+    new_abc['kummuliert'] = new_abc['anteil'].cumsum()
+    new_abc['abc_klasse'] = new_abc['kummuliert'].apply(abc_klassifizierung)
+
+    # Zusammenfassung pro Durchlauf
+    new_abc_summary = new_abc['abc_klasse'].value_counts()
+
+    return new_abc_summary
