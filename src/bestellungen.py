@@ -1,6 +1,5 @@
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import LabelEncoder
 from sklearn.cluster import KMeans
 from copulas.multivariate import GaussianMultivariate
 from copulas.univariate import GaussianKDE
@@ -285,8 +284,6 @@ def synth_bestellungen_custom(df_bestellungen: pd.DataFrame, df_maerkte: pd.Data
             anzahl_pro_cluster[max(anteile, key=anteile.get)] += 1
         elif rest < 0:
             anzahl_pro_cluster[min(anteile, key=anteile.get)] -= 1
-
-
 
         for cluster_id, n_orders_cluster in anzahl_pro_cluster.items():
 

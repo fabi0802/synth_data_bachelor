@@ -6,9 +6,22 @@ from scipy.stats import chi2_contingency
 from datetime import datetime
 
 def vergleich_real_synth_maerkte(real_maerkte_v2: pd.DataFrame, synth_maerkte_v2: pd.DataFrame) -> pd.DataFrame:
+    '''
+    Vergleicht Lageparameter (Median), Streuung (Standardabweichung), Verteilung (KS-Test) und Abweichung (Wasserstein-Test)
+    zwischen den realen Märkten und den synthetischen Märkten pro generierten cluster
+    Kennzahlen hängen teilweise von der Anzahl der generierten Märkten ab
 
+    Args:
+        real_maerkte_v2 (DataFrame): Reale Cluster Märkte aus der Funktion kmeans_cluster_maerkte
+        synth_maerkte_v2 (DataFrame): Synthetische Cluster Märkte aus der Funktion synth_maerkte oder synth_maerkte_custom (keine Gewährleistung)
+    
+    Returns:
+        df_auswertung (DataFrame): Auswertungen Abgleich pro cluster zwischen real und synthetischen Märkten
+    '''
     # Kennzahlen welche verglichen werden sollen
     unq_variable = ['diff_article', 'orders', 'avg_kolli']
+    
+    # Cluster über die iteriert werden soll
     unq_cluster = real_maerkte_v2['cluster'].unique()
 
     rows = []
@@ -62,7 +75,17 @@ def vergleich_real_synth_maerkte(real_maerkte_v2: pd.DataFrame, synth_maerkte_v2
     return df_auswertung
 
 def vergleich_real_synth_maerkte_visual(real_maerkte: pd.DataFrame, synth_maerkte: pd.DataFrame):
+    '''
+    Vergleicht die Verteilungen zwischen den realen und synthetischen Märkten für die Variablen diff_article, avg_kolli, orders in einem Histogramm
+    Plots hängen von der Anzahl der generierten Märkten ab
+
+    Args:
+        real_maerkte (DataFrame): Reale Cluster Märkte aus der Funktion kmeans_cluster_maerkte
+        synth_maerkte (DataFrame): Synthetische Cluster Märkte aus der Funktion synth_maerkte oder synth_maerkte_custom (keine Gewährleistung)
     
+    Returns:
+        auswertung_maerkte (png): Histogramm Abgleich für die Variablen diff_article, avg_kolli, orders
+    '''
     jetzt = datetime.now()
 
     real_maerkte['Kategorie'] = "real"
@@ -87,6 +110,18 @@ def vergleich_real_synth_maerkte_visual(real_maerkte: pd.DataFrame, synth_maerkt
     return
 
 def vergleich_real_synth_bestellungen(real_bestellungen_v2: pd.DataFrame, synth_bestellungen_v2: pd.DataFrame) -> pd.DataFrame:
+    '''
+    Vergleicht Lageparameter (Median, Mean), Streuung (Standardabweichung), Verteilung (KS-Test) und Abweichung (Wasserstein-Test)
+    zwischen den realen Bestellungen und den synthetischen Betellungen pro generierten cluster
+    Kennzahlen hängen teilweise von der Anzahl der generierten Märkten ab
+
+    Args:
+        real_bestellungen_v2 (DataFrame): Reale Cluster Bestellungen aus der Funktion kmeans_cluster_bestellungen
+        synth_bestellungen_v2 (DataFrame): Synthetische Cluster Bestellungen aus der Funktion synth_bestellungen oder synth_bestellungen_custom (keine Gewährleistung)
+    
+    Returns:
+        df_auswertung (DataFrame): Auswertungen Abgleich pro cluster zwischen real und synthetischen Bestellungen
+    '''
 
     # Vorbereitung synth_bestellungen
     synth_bestellungen_v2 = synth_bestellungen_v2.rename(columns={
@@ -157,7 +192,17 @@ def vergleich_real_synth_bestellungen(real_bestellungen_v2: pd.DataFrame, synth_
     return df_auswertung
 
 def vergleich_real_synth_bestellungen_visual(real_bestellungen: pd.DataFrame, synth_bestellungen:pd.DataFrame):
+    '''
+    Vergleicht die Verteilungen zwischen den realen und synthetischen Bestellungen für die Variablen Wochentag, orderlines, diff_sortimente in einem Histogramm
+    Plots hängen von der Anzahl der generierten Märkten ab
 
+    Args:
+        real_bestellungen (DataFrame): Reale Cluster Bestellungen aus der Funktion kmeans_cluster_bestellungen
+        synth_bestellungen (DataFrame): Synthetische Cluster Bestellungen aus der Funktion synth_bestellungen oder synth_bestellungen_custom (keine Gewährleistung)
+    
+    Returns:
+        auswertung_bestellungen (png): Histogramm Abgleich für die Variablen Wochentag, orderlines, diff_sortimente
+    '''
     jetzt = datetime.now()
 
     # Synth Bestellungen bereinigen
@@ -187,7 +232,18 @@ def vergleich_real_synth_bestellungen_visual(real_bestellungen: pd.DataFrame, sy
     return
 
 def vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2: pd.DataFrame, synth_bestellpositionen_v2: pd.DataFrame) -> pd.DataFrame:
+    '''
+    Vergleicht Lageparameter (Median, Mean), Streuung (Standardabweichung), Verteilung (KS-Test) und Abweichung (Wasserstein-Test)
+    zwischen den realen Bestellpositionen und den synthetischen Bestellpositionen 
+    Kennzahlen hängen teilweise von der Anzahl der generierten Märkten ab
+
+    Args:
+        real_bestellpositionen_v2 (DataFrame): Reale Cluster Bestellpositionen aus dem original df
+        synth_bestellpositionen_v2 (DataFrame): Synthetische Cluster Bestellpositionen aus der Funktion synth_bestellpositionen
     
+    Returns:
+        df_auswertung (DataFrame): Auswertungen Abgleich zwischen real und synthetischen bestellpositionen
+    '''
     statistik = []
 
     statistik.append({
@@ -212,22 +268,22 @@ def vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2: pd.DataFra
     })
 
     statistik.append({
-                "variable": "MengeInKolli",
-                "metrik": "Wasserstein Metrik",
-                "real&synth": wasserstein_distance(
-                real_bestellpositionen_v2["MengeInKolli"],
-                synth_bestellpositionen_v2["MengeInKolli"]
-                )    
-            })
+        "variable": "MengeInKolli",
+        "metrik": "Wasserstein Metrik",
+        "real&synth": wasserstein_distance(
+            real_bestellpositionen_v2["MengeInKolli"],
+            synth_bestellpositionen_v2["MengeInKolli"]
+            )    
+    })
     
     statistik.append({
-                "variable": "MengeInKolli",
-                "metrik": "Wasserstein Metrik",
-                "real&synth": ks_2samp(
-                real_bestellpositionen_v2["MengeInKolli"],
-                synth_bestellpositionen_v2["MengeInKolli"]
-                )    
-            })
+        "variable": "MengeInKolli",
+        "metrik": "Wasserstein Metrik",
+        "real&synth": ks_2samp(
+            real_bestellpositionen_v2["MengeInKolli"],
+            synth_bestellpositionen_v2["MengeInKolli"]
+            )    
+    })
     
     statistik.append({
         "variable": "Artikelnummer",

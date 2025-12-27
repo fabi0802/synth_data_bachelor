@@ -3,20 +3,20 @@ import numpy as np
 
 def synth_bestellpositionen_sortiment(df: pd.DataFrame, df_bestellungen: pd.DataFrame, synth_bestellungen: pd.DataFrame, seed: int = 42) -> pd.DataFrame:
     """
-         Generiert synthetische Bestellpositionen auf Basis realer, geclusterter Bestelldaten.
+     Generiert synthetische Bestellpositionen auf Basis realer, geclusterter Bestelldaten.
 
-        Für jedes Bestellcluster werden empirische Pools aus Artikelnummern und
-        Bestellmengen gebildet. Die synthetischen Bestellpositionen werden anschließend
-        durch zufälliges Ziehen (mit Zurücklegen) aus diesen Pools pro synthetischer
-        Bestellung erzeugt.
+    Für jedes Bestellcluster werden empirische Pools aus Artikelnummern und
+    Bestellmengen gebildet. Die synthetischen Bestellpositionen werden anschließend
+    durch zufälliges Ziehen (mit Zurücklegen) aus diesen Pools pro synthetischer
+    Bestellung erzeugt.
 
-        Args:
-            df (DataFrame): Originale Bestellpositionsdaten 
-            df_bestellungen (DataFrame):Cluster Bestelldatensatz aus kmeans_cluster_bestellungen
-            synth_bestellungen (DataFrame): Synthetische Bestellungen
+    Args:
+        df (DataFrame): Originale Bestellpositionsdaten 
+        df_bestellungen (DataFrame):Cluster Bestelldatensatz aus kmeans_cluster_bestellungen
+        synth_bestellungen (DataFrame): Synthetische Bestellungen
 
-        Returns:
-            synth_orderlines (DataFrame): Synthetische Bestellpositionen 
+    Returns:
+        synth_orderlines (DataFrame): Synthetische Bestellpositionen 
     """
 
     orig_df = df.copy()
@@ -117,20 +117,20 @@ def synth_bestellpositionen_sortiment(df: pd.DataFrame, df_bestellungen: pd.Data
 
 def synth_bestellpositionen(df: pd.DataFrame, df_bestellungen: pd.DataFrame, synth_bestellungen: pd.DataFrame) -> pd.DataFrame:
     """
-        Generiert synthetische Bestellpositionen auf Basis realer, geclusterter Bestelldaten.
+    Generiert synthetische Bestellpositionen auf Basis realer, geclusterter Bestelldaten.
 
-        Für jedes Bestellcluster werden empirische Pools aus Artikelnummern und
-        Bestellmengen gebildet. Die synthetischen Bestellpositionen werden anschließend
-        durch zufälliges Ziehen (mit Zurücklegen) aus diesen Pools pro synthetischer
-        Bestellung erzeugt.
+    Für jedes Bestellcluster werden empirische Pools aus Artikelnummern und
+    Bestellmengen gebildet. Die synthetischen Bestellpositionen werden anschließend
+    durch zufälliges Ziehen (mit Zurücklegen) aus diesen Pools pro synthetischer
+    Bestellung erzeugt.
 
-        Args:
-            df (DataFrame): Originale Bestellpositionsdaten 
-            df_bestellungen (DataFrame):Cluster Bestelldatensatz aus kmeans_cluster_bestellungen
-            synth_bestellungen (DataFrame): Synthetische Bestellungen
+    Args:
+        df (DataFrame): Originale Bestellpositionsdaten 
+        df_bestellungen (DataFrame):Cluster Bestelldatensatz aus kmeans_cluster_bestellungen
+        synth_bestellungen (DataFrame): Synthetische Bestellungen
 
-        Returns:
-            synth_orderlines (DataFrame): Synthetische Bestellpositionen 
+    Returns:
+        synth_orderlines (DataFrame): Synthetische Bestellpositionen 
     """
 
     # Erstellung der order_id für cluster merge
