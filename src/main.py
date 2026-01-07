@@ -2,15 +2,14 @@ import pandas as pd
 from datetime import datetime
 from maerkte import kmeans_cluster_maerkte, synth_maerkte, synth_maerkte_custom
 from bestellungen import kmeans_cluster_bestellungen, synth_bestellungen, synth_bestellungen_custom
-from bestellpositionen import synth_bestellpositionen, synth_bestellpositionen_sortiment
-from analyse import vergleich_real_synth_maerkte, vergleich_real_synth_maerkte_visual, vergleich_real_synth_bestellungen, vergleich_real_synth_bestellungen_visual, vergleich_real_synth_bestellpositionen
+from bestellpositionen import synth_bestellpositionen
+from analyse import vergleich_real_synth_maerkte, vergleich_real_synth_maerkte_visual, vergleich_real_synth_bestellungen, vergleich_real_synth_bestellungen_visual, vergleich_real_synth_bestellpositionen, zusammenfassung_analysen_roh
 from abc_klasse import abc_analyse, abc_analyse_plot, abc_zusammenfassung_neu
 
 jetzt = datetime.now()
-anzahl_neue_maerkte = 400
+anzahl_neue_maerkte = 800
 
 df = pd.read_parquet('data/raw/orderlines_dezember.parquet')
-
 
 # Bestehende Märkte zu Clustern zusammenfassen
 df_maerkte = df.copy()
@@ -62,34 +61,30 @@ cluster_1 = Regelbestellungen (viele Bestellungen, geringe Menge pr Bestellung, 
 
 
 # Neue Bestellpositionen generieren & abspeichern
-df_neue_bestellpositionen = synth_bestellpositionen_sortiment(df, df_bestellungen, df_neue_bestellungen)
+df_neue_bestellpositionen = synth_bestellpositionen(df, df_bestellungen, df_neue_bestellungen)
 df_neue_bestellpositionen.to_parquet(f'data/processed/synth_data_{jetzt:%Y_%m_%d_%H_%M}.parquet')
 
 
 # Markt Kennzahlen Überprüfung zwischen den realen und synthetischen Märkten & visueller Darstellung der Verteilungen
-Abgleich_maerkte = vergleich_real_synth_maerkte(df_maerkte, df_neue_maerkte)
-Abgleich_maerkte.to_excel(f'reports/summary/markt_kennzahlen_{jetzt:%Y_%m_%d_%H_%M}.xlsx')
-vergleich_real_synth_maerkte_visual(df_maerkte, df_neue_maerkte)
+# Abgleich_maerkte = vergleich_real_synth_maerkte(df_maerkte, df_neue_maerkte)
+# Abgleich_maerkte.to_excel(f'reports/summary/markt_kennzahlen_{jetzt:%Y_%m_%d_%H_%M}.xlsx')
+# vergleich_real_synth_maerkte_visual(df_maerkte, df_neue_maerkte)
 
 
 # Bestellungen Kennzahlen Überprüfung zwischen den realen und synthetischen Bestellungen & visualler Darstellung der Verteilungen
-Abgleich_bestellungen = vergleich_real_synth_bestellungen(df_bestellungen, df_neue_bestellungen)
-Abgleich_bestellungen.to_excel(f'reports/summary/bestellkopf_kennzahlen_{jetzt:%Y_%m_%d_%H_%M}.xlsx')
-vergleich_real_synth_bestellungen_visual(df_bestellungen, df_neue_bestellungen)
+# Abgleich_bestellungen = vergleich_real_synth_bestellungen(df_bestellungen, df_neue_bestellungen)
+# Abgleich_bestellungen.to_excel(f'reports/summary/bestellkopf_kennzahlen_{jetzt:%Y_%m_%d_%H_%M}.xlsx')
+# vergleich_real_synth_bestellungen_visual(df_bestellungen, df_neue_bestellungen)
 
 
 # Bestellpositionen Kennzahlen Überprüfung zwischen den realen und synthetischen Bestellpositionen & visualler Darstellung der Verteilungen
-Abgleich_bestellpositinen = vergleich_real_synth_bestellpositionen(df, df_neue_bestellpositionen)
-Abgleich_bestellpositinen.to_excel(f'reports/summary/bestellpositionen_kennzahlen_{jetzt:%Y_%m_%d_%H_%M}.xlsx')
+# Abgleich_bestellpositinen = vergleich_real_synth_bestellpositionen(df, df_neue_bestellpositionen)
+# Abgleich_bestellpositinen.to_excel(f'reports/summary/bestellpositionen_kennzahlen_{jetzt:%Y_%m_%d_%H_%M}.xlsx')
 
+roh_analyse = zusammenfassung_analysen_roh(df_maerkte,df_neue_maerkte,df_bestellungen,df_neue_bestellungen,df,df_neue_bestellpositionen)
+roh_analyse.to_excel(f'reports/summary/roh_analyse_{jetzt:%Y_%m_%d_%H_%M}.xlsx')
 
 # ABC-Analyse Vergleich zwischen real und real + synth orderlines & Analyse-Plot
-Abgleich_abc_klasse = abc_analyse(df, df_neue_bestellpositionen)
-abc_analyse_plot(Abgleich_abc_klasse)
-
-
-# Zusammenfassung der ABC-Klasse der orig&synth Daten (Analysezwecke)
-abc = abc_zusammenfassung_neu(df, df_neue_bestellpositionen)
-abc.to_excel('data/processed/abc.xlsx')
+# Abgleich_abc_klasse = abc_analyse(df, df_neue_bestellpositionen)
 
 print('Durchlauf ist fertig')

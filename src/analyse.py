@@ -302,3 +302,17 @@ def vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2: pd.DataFra
     df_auswertung = pd.DataFrame(statistik)
     
     return df_auswertung
+
+def zusammenfassung_analysen_roh(real_maerkte_v2: pd.DataFrame,synth_maerkte_v2: pd.DataFrame,real_bestellungen_v2: pd.DataFrame,synth_bestellungen_v2: pd.DataFrame,real_bestellpositionen_v2: pd.DataFrame,synth_bestellpositionen_v2: pd.DataFrame) -> pd.DataFrame:
+
+    df_maerkte = vergleich_real_synth_maerkte(real_maerkte_v2, synth_maerkte_v2).copy()
+    df_maerkte["ebene"] = "maerkte"
+
+    df_bestellungen = vergleich_real_synth_bestellungen(real_bestellungen_v2, synth_bestellungen_v2).copy()
+    df_bestellungen["ebene"] = "bestellungen"
+
+    df_bestellpos = vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2, synth_bestellpositionen_v2).copy()
+    df_bestellpos["ebene"] = "bestellpositionen"
+
+    # concat nimmt automatisch die Union aller Spalten; fehlende werden NaN
+    return pd.concat([df_maerkte, df_bestellungen, df_bestellpos], ignore_index=True, sort=False)
