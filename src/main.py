@@ -4,7 +4,7 @@ from maerkte import kmeans_cluster_maerkte, synth_maerkte, synth_maerkte_custom
 from bestellungen import kmeans_cluster_bestellungen, synth_bestellungen, synth_bestellungen_custom
 from bestellpositionen import synth_bestellpositionen
 from analyse import vergleich_real_synth_maerkte, vergleich_real_synth_maerkte_visual, vergleich_real_synth_bestellungen, vergleich_real_synth_bestellungen_visual, vergleich_real_synth_bestellpositionen, zusammenfassung_analysen_roh
-from abc_klasse import abc_analyse, abc_analyse_plot, abc_zusammenfassung_neu
+from abc_klasse import abc_analyse
 
 jetzt = datetime.now()
 anzahl_neue_maerkte = 800
