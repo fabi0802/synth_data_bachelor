@@ -9,7 +9,7 @@ def synth_bestellpositionen(df: pd.DataFrame, df_bestellungen: pd.DataFrame, syn
     Bestellmengen gebildet. Die synthetischen Bestellpositionen werden anschließend
     durch zufälliges Ziehen (mit Zurücklegen) aus diesen Pools pro synthetischer
     Bestellung erzeugt.
-
+    
     Args:
         df (DataFrame): Originale Bestellpositionsdaten 
         df_bestellungen (DataFrame):Cluster Bestelldatensatz aus kmeans_cluster_bestellungen

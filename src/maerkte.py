@@ -26,8 +26,8 @@ def kmeans_cluster_maerkte(df:pd.DataFrame, random_seed=42, k=3) -> pd.DataFrame
     # Gruppierung auf Marktebene 
     df_maerkte = df_maerkte.groupby('Marktnummer').agg({
         'Artikelnummer': 'nunique',     # Anzahl unterschiedlicher Artikel, welche der Markt bestellt hat
-        'MengeInKolli': 'median',       # Durchschnittliche bestellte Kolli Menge pro Markt
-        'order_id': 'nunique'           # Anzahl an Bestellungen, welche der Markt getätigt hat
+        'MengeInKolli': 'mean',       # Durchschnittliche bestellte Kolli Menge pro Markt
+        'order_id': 'nunique',           # Anzahl an Bestellungen, welche der Markt getätigt hat
     }).rename(columns={
         'Artikelnummer': 'diff_article',    # different_article
         'MengeInKolli': 'avg_kolli',        # avergae_kolli
@@ -115,9 +115,7 @@ def synth_maerkte_custom(df_maerkte: pd.DataFrame, maerkte_count: int, marktmix_
     Args:
         df_maerkte (DataFrame): Cluster Marktdatensatz aus kmeans_cluster_maerkte
         maerkte_count (Integer): Anzahl zu generierenden Märkten 
-        cluster_0_rel (Float): Relativen Anteil an der Gesamtheit an der zu generierenden Märktenvon cluster 0
-        cluster_1_rel (Float): Relativen Anteil an der Gesamtheit an der zu generierenden Märktenvon cluster 1
-        cluster_2_rel (Float): Relativen Anteil an der Gesamtheit an der zu generierenden Märktenvon cluster 2
+        marktmix_override (Dictionary): Matrix Tabelle mit überschreibenden Häufigkeiten, für Szenariospezifischer Simulation 
     
     Returns:
         synthetic_maerkte (DataFrame): Synthetischer Marktdatensatz'''

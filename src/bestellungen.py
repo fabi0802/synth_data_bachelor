@@ -47,9 +47,9 @@ def kmeans_cluster_bestellungen(df: pd.DataFrame, random_seed=42, k=2) -> pd.Dat
 
     # Clustering auf Bestellebene
     model = KMeans(n_clusters=k, random_state=random_seed)
-    predicted_labels_k2 = model.fit_predict(x_scaled_k2)
+    predicted_labels_k3 = model.fit_predict(x_scaled_k2)
 
-    df_bestellugnen['cluster'] = predicted_labels_k2
+    df_bestellugnen['cluster'] = predicted_labels_k3
 
     return df_bestellugnen
 

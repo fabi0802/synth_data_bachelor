@@ -2,10 +2,9 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.stats import ks_2samp, wasserstein_distance
-from scipy.stats import chi2_contingency
 from datetime import datetime
 
-def vergleich_real_synth_maerkte(real_maerkte_v2: pd.DataFrame, synth_maerkte_v2: pd.DataFrame) -> pd.DataFrame:
+def vergleich_real_synth_maerkte(real_maerkte_v2: pd.DataFrame, synth_maerkte_v2: pd.DataFrame, resampling_maerkte_v2: pd.DataFrame) -> pd.DataFrame:
     '''
     Vergleicht Lageparameter (Median), Streuung (Standardabweichung), Verteilung (KS-Test) und Abweichung (Wasserstein-Test)
     zwischen den realen Märkten und den synthetischen Märkten pro generierten cluster
@@ -14,6 +13,7 @@ def vergleich_real_synth_maerkte(real_maerkte_v2: pd.DataFrame, synth_maerkte_v2
     Args:
         real_maerkte_v2 (DataFrame): Reale Cluster Märkte aus der Funktion kmeans_cluster_maerkte
         synth_maerkte_v2 (DataFrame): Synthetische Cluster Märkte aus der Funktion synth_maerkte oder synth_maerkte_custom (keine Gewährleistung)
+        resampling_maerkte_v2 (DataFrame): Resamplet Cluster Märkte aus der Funktion resampling_maerkte
     
     Returns:
         df_auswertung (DataFrame): Auswertungen Abgleich pro cluster zwischen real und synthetischen Märkten
@@ -36,7 +36,8 @@ def vergleich_real_synth_maerkte(real_maerkte_v2: pd.DataFrame, synth_maerkte_v2
                 "variable": variable,
                 "metrik": "median",
                 "real": real_maerkte_v2.loc[real_maerkte_v2['cluster'] == cluster][variable].median(),
-                "synth": synth_maerkte_v2.loc[synth_maerkte_v2['cluster'] == cluster][variable].median()
+                "synth": synth_maerkte_v2.loc[synth_maerkte_v2['cluster'] == cluster][variable].median(),
+                "resample": resampling_maerkte_v2.loc[resampling_maerkte_v2['cluster'] == cluster][variable].median(),
             })
 
         for cluster in unq_cluster: 
@@ -45,7 +46,8 @@ def vergleich_real_synth_maerkte(real_maerkte_v2: pd.DataFrame, synth_maerkte_v2
                 "variable": variable,
                 "metrik": "stdv",
                 "real": real_maerkte_v2.loc[real_maerkte_v2['cluster'] == cluster][variable].std(),
-                "synth": synth_maerkte_v2.loc[synth_maerkte_v2['cluster'] == cluster][variable].std()
+                "synth": synth_maerkte_v2.loc[synth_maerkte_v2['cluster'] == cluster][variable].std(),
+                "resample": resampling_maerkte_v2.loc[resampling_maerkte_v2['cluster'] == cluster][variable].std()
             })
 
         for cluster in unq_cluster: 
@@ -56,7 +58,11 @@ def vergleich_real_synth_maerkte(real_maerkte_v2: pd.DataFrame, synth_maerkte_v2
                 "real&synth": wasserstein_distance(
                 real_maerkte_v2.loc[real_maerkte_v2['cluster'] == cluster][variable],
                 synth_maerkte_v2.loc[synth_maerkte_v2['cluster'] == cluster][variable]
-                )    
+                ),
+                "real&resample": wasserstein_distance(
+                real_maerkte_v2.loc[real_maerkte_v2['cluster'] == cluster][variable],
+                resampling_maerkte_v2.loc[resampling_maerkte_v2['cluster'] == cluster][variable]
+                ),    
             })
         
         for cluster in unq_cluster:
@@ -67,7 +73,11 @@ def vergleich_real_synth_maerkte(real_maerkte_v2: pd.DataFrame, synth_maerkte_v2
                 "real&synth": ks_2samp(
                 real_maerkte_v2.loc[real_maerkte_v2['cluster'] == cluster][variable],
                 synth_maerkte_v2.loc[synth_maerkte_v2['cluster'] == cluster][variable]
-                )    
+                ),
+                "real&resample": ks_2samp(
+                real_maerkte_v2.loc[real_maerkte_v2['cluster'] == cluster][variable],
+                resampling_maerkte_v2.loc[resampling_maerkte_v2['cluster'] == cluster][variable]
+                ),     
             })
 
     df_auswertung = pd.DataFrame(rows)
