@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.stats import ks_2samp, wasserstein_distance
@@ -84,41 +85,6 @@ def vergleich_real_synth_maerkte(real_maerkte_v2: pd.DataFrame, synth_maerkte_v2
 
     return df_auswertung
 
-def vergleich_real_synth_maerkte_visual(real_maerkte: pd.DataFrame, synth_maerkte: pd.DataFrame):
-    '''
-    Vergleicht die Verteilungen zwischen den realen und synthetischen Märkten für die Variablen diff_article, avg_kolli, orders in einem Histogramm
-    Plots hängen von der Anzahl der generierten Märkten ab
-
-    Args:
-        real_maerkte (DataFrame): Reale Cluster Märkte aus der Funktion kmeans_cluster_maerkte
-        synth_maerkte (DataFrame): Synthetische Cluster Märkte aus der Funktion synth_maerkte oder synth_maerkte_custom (keine Gewährleistung)
-    
-    Returns:
-        auswertung_maerkte (png): Histogramm Abgleich für die Variablen diff_article, avg_kolli, orders
-    '''
-    jetzt = datetime.now()
-
-    real_maerkte['Kategorie'] = "real"
-    synth_maerkte['Kategorie'] = "synth"
-
-    maerkte = pd.concat([real_maerkte, synth_maerkte])
-
-    fig, axes = plt.subplots(2, 2, figsize=(14, 7))
-    axes = axes.flatten()
-
-    sns.histplot(data=maerkte, x="diff_article", hue="Kategorie", ax=axes[0], stat='density', legend=True)
-    axes[0].set_title("Verteilung 'diff_article' zwischen realen und synthtischen Märkten")
-
-    sns.histplot(data=maerkte, x="avg_kolli", hue="Kategorie", ax=axes[1], stat='density', legend=True)
-    axes[1].set_title("Verteilung 'avg_kolli' zwischen realen und synthtischen Märkten")
-
-    sns.histplot(data=maerkte, x="orders", hue="Kategorie", ax=axes[2], stat='density', legend=True)
-    axes[2].set_title("Verteilung 'orders' zwischen realen und synthtischen Märkten")
-
-    fig.savefig(f'reports/figures/auswertung_maerkte{jetzt:%Y_%m_%d_%H_%M}.png')
-
-    return
-
 def vergleich_real_synth_bestellungen(real_bestellungen_v2: pd.DataFrame, synth_bestellungen_v2: pd.DataFrame) -> pd.DataFrame:
     '''
     Vergleicht Lageparameter (Median, Mean), Streuung (Standardabweichung), Verteilung (KS-Test) und Abweichung (Wasserstein-Test)
@@ -201,47 +167,7 @@ def vergleich_real_synth_bestellungen(real_bestellungen_v2: pd.DataFrame, synth_
 
     return df_auswertung
 
-def vergleich_real_synth_bestellungen_visual(real_bestellungen: pd.DataFrame, synth_bestellungen:pd.DataFrame):
-    '''
-    Vergleicht die Verteilungen zwischen den realen und synthetischen Bestellungen für die Variablen Wochentag, orderlines, diff_sortimente in einem Histogramm
-    Plots hängen von der Anzahl der generierten Märkten ab
-
-    Args:
-        real_bestellungen (DataFrame): Reale Cluster Bestellungen aus der Funktion kmeans_cluster_bestellungen
-        synth_bestellungen (DataFrame): Synthetische Cluster Bestellungen aus der Funktion synth_bestellungen oder synth_bestellungen_custom (keine Gewährleistung)
-    
-    Returns:
-        auswertung_bestellungen (png): Histogramm Abgleich für die Variablen Wochentag, orderlines, diff_sortimente
-    '''
-    jetzt = datetime.now()
-
-    # Synth Bestellungen bereinigen
-    synth_bestellungen = synth_bestellungen.drop(columns=['cluster_markt']).rename(columns={
-        'cluster_bestellungen': 'cluster'
-    }).reset_index()
-
-    real_bestellungen['Kategorie'] = "real"
-    synth_bestellungen['Kategorie'] = "synth"
-
-    bestellungen = pd.concat([real_bestellungen, synth_bestellungen])
-
-    fig, axes = plt.subplots(2, 2, figsize=(14, 7))
-    axes = axes.flatten()
-
-    sns.histplot(data=bestellungen, x="Wochentag", hue="Kategorie", ax=axes[0], stat='density', legend=True)
-    axes[0].set_title("Verteilung 'Wochentagen' zwischen realen und synthtischen Bestellungen")
-
-    sns.histplot(data=bestellungen, x="orderlines", hue="Kategorie", ax=axes[1], stat='density', legend=True)
-    axes[1].set_title("Verteilung 'orderlines' zwischen realen und synthtischen Bestellungen")
-
-    sns.histplot(data=bestellungen, x="diff_sortimente", hue="Kategorie", ax=axes[2], stat='density', legend=True)
-    axes[2].set_title("Verteilung 'diff_sortimente' zwischen realen und synthtischen Bestellungen")
-
-    fig.savefig(f'reports/figures/auswertung_bestellungen{jetzt:%Y_%m_%d_%H_%M}.png')
-
-    return
-
-def vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2: pd.DataFrame, synth_bestellpositionen_v2: pd.DataFrame) -> pd.DataFrame:
+def vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2: pd.DataFrame, synth_bestellpositionen_v2: pd.DataFrame, resampling_bestellpositionen_v2: pd.DataFrame) -> pd.DataFrame:
     '''
     Vergleicht Lageparameter (Median, Mean), Streuung (Standardabweichung), Verteilung (KS-Test) und Abweichung (Wasserstein-Test)
     zwischen den realen Bestellpositionen und den synthetischen Bestellpositionen 
@@ -261,6 +187,7 @@ def vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2: pd.DataFra
         "metrik": "mean",
         "real": real_bestellpositionen_v2['MengeInKolli'].mean(),
         "synth": synth_bestellpositionen_v2['MengeInKolli'].mean(),
+        "resample": resampling_bestellpositionen_v2["MengeInKolli"].mean(),
     })
 
     statistik.append({
@@ -268,6 +195,7 @@ def vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2: pd.DataFra
         "metrik": "median",
         "real": real_bestellpositionen_v2['MengeInKolli'].median(),
         "synth": synth_bestellpositionen_v2['MengeInKolli'].median(),
+        "resample": resampling_bestellpositionen_v2["MengeInKolli"].median(),
     })
 
     statistik.append({
@@ -275,6 +203,7 @@ def vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2: pd.DataFra
         "metrik": "stdv",
         "real": real_bestellpositionen_v2['MengeInKolli'].std(),
         "synth": synth_bestellpositionen_v2['MengeInKolli'].std(),
+        "resample": resampling_bestellpositionen_v2["MengeInKolli"].std(),
     })
 
     statistik.append({
@@ -283,7 +212,11 @@ def vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2: pd.DataFra
         "real&synth": wasserstein_distance(
             real_bestellpositionen_v2["MengeInKolli"],
             synth_bestellpositionen_v2["MengeInKolli"]
-            )    
+            ),
+        "real&resample": wasserstein_distance(
+            real_bestellpositionen_v2["MengeInKolli"],
+            resampling_bestellpositionen_v2["MengeInKolli"]
+            ),  
     })
     
     statistik.append({
@@ -292,7 +225,11 @@ def vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2: pd.DataFra
         "real&synth": ks_2samp(
             real_bestellpositionen_v2["MengeInKolli"],
             synth_bestellpositionen_v2["MengeInKolli"]
-            )    
+            ),
+        "real&resample": ks_2samp(
+            real_bestellpositionen_v2["MengeInKolli"],
+            resampling_bestellpositionen_v2["MengeInKolli"]
+            )      
     })
     
     statistik.append({
@@ -300,6 +237,7 @@ def vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2: pd.DataFra
         "metrik": "nunique",
         "real": real_bestellpositionen_v2['Artikelnummer'].nunique(),
         "synth": synth_bestellpositionen_v2['Artikelnummer'].nunique(),
+        "resample": resampling_bestellpositionen_v2['Artikelnummer'].nunique(),
     })
 
     statistik.append({
@@ -307,22 +245,177 @@ def vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2: pd.DataFra
         "metrik": "mode",
         "real": real_bestellpositionen_v2['Artikelnummer'].mode(),
         "synth": synth_bestellpositionen_v2['Artikelnummer'].mode(),
+        "resample": resampling_bestellpositionen_v2['Artikelnummer'].mode(),
     })
 
     df_auswertung = pd.DataFrame(statistik)
     
     return df_auswertung
 
-def zusammenfassung_analysen_roh(real_maerkte_v2: pd.DataFrame,synth_maerkte_v2: pd.DataFrame,real_bestellungen_v2: pd.DataFrame,synth_bestellungen_v2: pd.DataFrame,real_bestellpositionen_v2: pd.DataFrame,synth_bestellpositionen_v2: pd.DataFrame) -> pd.DataFrame:
+def zusammenfassung_analysen_roh(real_maerkte_v2: pd.DataFrame,synth_maerkte_v2: pd.DataFrame, resampling_maerkte_v2: pd.DataFrame ,real_bestellungen_v2: pd.DataFrame,synth_bestellungen_v2: pd.DataFrame,real_bestellpositionen_v2: pd.DataFrame,synth_bestellpositionen_v2: pd.DataFrame, resampling_bestellpositionen_v2: pd.DataFrame) -> pd.DataFrame:
 
-    df_maerkte = vergleich_real_synth_maerkte(real_maerkte_v2, synth_maerkte_v2).copy()
+    df_maerkte = vergleich_real_synth_maerkte(real_maerkte_v2, synth_maerkte_v2, resampling_maerkte_v2).copy()
     df_maerkte["ebene"] = "maerkte"
 
     df_bestellungen = vergleich_real_synth_bestellungen(real_bestellungen_v2, synth_bestellungen_v2).copy()
     df_bestellungen["ebene"] = "bestellungen"
 
-    df_bestellpos = vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2, synth_bestellpositionen_v2).copy()
+    df_bestellpos = vergleich_real_synth_bestellpositionen(real_bestellpositionen_v2, synth_bestellpositionen_v2, resampling_bestellpositionen_v2).copy()
     df_bestellpos["ebene"] = "bestellpositionen"
 
     # concat nimmt automatisch die Union aller Spalten; fehlende werden NaN
     return pd.concat([df_maerkte, df_bestellungen, df_bestellpos], ignore_index=True, sort=False)
+
+def avg_kolli_visual(real_maerkte:pd.DataFrame, synth_maerkte:pd.DataFrame, sampling_maerkte:pd.DataFrame):
+
+    jetzt = datetime.now()
+    real_maerkte['Kategorie'] = "real"
+    synth_maerkte['Kategorie'] = "synth"
+    sampling_maerkte['Kategorie'] = "sampling"
+
+    maerkte = pd.concat([real_maerkte, synth_maerkte, sampling_maerkte])
+
+    plt.figure(figsize=(9, 5))
+    ax =  sns.boxplot(data=maerkte, x='cluster', y='avg_kolli', hue='Kategorie')
+    ax.set_ylim(0,10)
+    plt.title("Verteilung von avg_kolli nach Marktcluster")
+    plt.xlabel("Cluster")
+    plt.ylabel("avg_kolli")
+    plt.tight_layout()
+    plt.savefig(f'reports/figures/auswertung_avg_kolli_{jetzt:%Y_%m_%d_%H_%M}.png', dpi=300, bbox_inches='tight')
+    plt.close()
+
+def diff_article_visual(real_maerkte:pd.DataFrame, synth_maerkte:pd.DataFrame, sampling_maerkte:pd.DataFrame):
+
+    jetzt = datetime.now()
+    real_maerkte['Kategorie'] = "real"
+    synth_maerkte['Kategorie'] = "synth"
+    sampling_maerkte['Kategorie'] = "sampling"
+
+    maerkte = pd.concat([real_maerkte, synth_maerkte, sampling_maerkte])
+
+    plt.figure(figsize=(9, 5))
+    sns.violinplot(data=maerkte, x='cluster', y='diff_article', hue='Kategorie', split=False, inner='quartile')
+    plt.title("Verteilung von diff_article nach Marktcluster")
+    plt.xlabel("Cluster")
+    plt.ylabel("diff_article")
+    plt.tight_layout()
+    plt.savefig(f'reports/figures/auswertung_diff_article_{jetzt:%Y_%m_%d_%H_%M}.png', dpi=300, bbox_inches='tight')
+    plt.close()
+
+def orderlines_visual(real_bestellungen:pd.DataFrame, synth_bestellungen:pd.DataFrame, sampling_bestellungen:pd.DataFrame):
+
+    jetzt = datetime.now()
+    real_bestellungen['Kategorie'] = "real"
+    synth_bestellungen['Kategorie'] = "synth"
+    sampling_bestellungen['Kategorie'] = "sampling"
+
+    bestellungen = pd.concat([real_bestellungen, synth_bestellungen, sampling_bestellungen])
+
+    plt.figure(figsize=(8, 5))
+    sns.violinplot(data=bestellungen, x='Kategorie', y='orderlines', inner='quartile')
+    plt.title("Verteilung der Orderlines")
+    plt.xlabel("Verfahren")
+    plt.ylabel("orderlines")
+    plt.tight_layout()
+    plt.savefig(f'reports/figures/auswertung_orderlines_{jetzt:%Y_%m_%d_%H_%M}.png', dpi=300, bbox_inches='tight')
+    plt.close()
+
+def tagesvolumen_visual(real_bestellungen:pd.DataFrame, synth_bestellungen:pd.DataFrame, sampling_bestellungen:pd.DataFrame):
+
+    jetzt = datetime.now()
+    real_bestellungen['Kategorie'] = "real"
+    synth_bestellungen['Kategorie'] = "synth"
+    sampling_bestellungen['Kategorie'] = "sampling"
+
+    bestellungen = pd.concat([real_bestellungen, synth_bestellungen, sampling_bestellungen])
+
+    bestellungen = bestellungen.groupby((['Datum','Kategorie']))['orderlines'].sum().reset_index()
+
+    plt.figure(figsize=(8, 5))
+    sns.barplot(data=bestellungen, x='Datum', y='orderlines', hue='Kategorie')
+    plt.title("Verteilung der Orderlines über Tage")
+    plt.xlabel("Datum")
+    plt.ylabel("orderlines")
+    plt.tight_layout()
+    plt.savefig(f'reports/figures/auswertung_orderlines_tagesvolumen{jetzt:%Y_%m_%d_%H_%M}.png', dpi=300, bbox_inches='tight')
+    plt.close()
+
+def artikelvolumen_visual(real_bestellpositionen:pd.DataFrame, synth_bestellpositionen:pd.DataFrame, sampling_bestellpositionen:pd.DataFrame):
+
+    jetzt = datetime.now()
+    real_bestellpositionen['Kategorie'] = "real"
+    synth_bestellpositionen['Kategorie'] = "synth"
+    sampling_bestellpositionen['Kategorie'] = "sampling"
+
+    bestellungen = pd.concat([real_bestellpositionen, synth_bestellpositionen, sampling_bestellpositionen])
+    bestellungen = bestellungen.groupby((['Artikelnummer', 'Kategorie']))['MengeInKolli'].sum().reset_index()
+
+    plt.figure(figsize=(8, 5))
+    sns.scatterplot(data=bestellungen, x='Artikelnummer', y='MengeInKolli', hue='Kategorie')
+    plt.title("Verteilung der Artikelnummern")
+    plt.xlabel("Artikelnummer")
+    plt.ylabel("MengeInKolli")
+    plt.tight_layout()
+    plt.savefig(f'reports/figures/auswertung_artikelvolumen{jetzt:%Y_%m_%d_%H_%M}.png', dpi=300, bbox_inches='tight')
+    plt.close()
+
+def korrelation_maerkte(df_maerkte:pd.DataFrame, synth_maerkte:pd.DataFrame, resamp_maerkte:pd.DataFrame, method="pearson") -> pd.DataFrame:
+   
+    df_real = df_maerkte[['diff_article', 'orders', 'avg_kolli']]
+    df_synth = synth_maerkte[['diff_article', 'orders', 'avg_kolli']]
+    df_resamp = resamp_maerkte[['diff_article', 'orders', 'avg_kolli']]
+
+    corr_real = df_real.corr(method=method)
+    corr_syn1 = df_synth.corr(method=method)
+    corr_syn2 = df_resamp.corr(method=method)
+
+    delta_syn1 = corr_syn1 - corr_real
+    delta_syn2 = corr_syn2 - corr_real
+
+    abs_delta_syn1 = np.abs(delta_syn1)
+    abs_delta_syn2 = np.abs(delta_syn2)
+
+    summary_df = pd.DataFrame({
+        "dataset": ["synth", "resamp"],
+        "mean_abs_delta": [
+            abs_delta_syn1.values.mean(),
+            abs_delta_syn2.values.mean()
+        ],
+        "max_abs_delta": [
+            abs_delta_syn1.values.max(),
+            abs_delta_syn2.values.max()
+        ]
+    })
+
+    return summary_df
+
+def korrelation_bestellungen(df_bestellungen:pd.DataFrame, synth_bestellungen:pd.DataFrame, resamp_bestellungen:pd.DataFrame, method="pearson") -> pd.DataFrame:
+   
+    df_real = df_bestellungen[['Wochentag', 'orderlines', 'diff_sortimente']]
+    df_synth = synth_bestellungen[['Wochentag', 'orderlines', 'diff_sortimente']]
+    df_resamp = resamp_bestellungen[['Wochentag', 'orderlines', 'diff_sortimente']]
+
+    corr_real = df_real.corr(method=method)
+    corr_syn1 = df_synth.corr(method=method)
+    corr_syn2 = df_resamp.corr(method=method)
+
+    delta_syn1 = corr_syn1 - corr_real
+    delta_syn2 = corr_syn2 - corr_real
+
+    abs_delta_syn1 = np.abs(delta_syn1)
+    abs_delta_syn2 = np.abs(delta_syn2)
+
+    summary_df = pd.DataFrame({
+        "dataset": ["synth", "resamp"],
+        "mean_abs_delta": [
+            abs_delta_syn1.values.mean(),
+            abs_delta_syn2.values.mean()
+        ],
+        "max_abs_delta": [
+            abs_delta_syn1.values.max(),
+            abs_delta_syn2.values.max()
+        ]
+    })
+
+    return summary_df

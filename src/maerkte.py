@@ -86,7 +86,7 @@ def synth_maerkte(df_maerkte: pd.DataFrame, maerkte_count: int) -> pd.DataFrame:
 
         # Plausibilität gewährleisten bei orders, avg_kolli & diff_article
         synthetic_maerkte['orders'] = synthetic_maerkte['orders'].round().astype(int).clip(lower=1)
-        synthetic_maerkte['avg_kolli'] = synthetic_maerkte['avg_kolli'].round().astype(float).clip(lower=1)
+        synthetic_maerkte['avg_kolli'] = synthetic_maerkte['avg_kolli'].astype(float).clip(lower=1)
         synthetic_maerkte['diff_article'] = synthetic_maerkte['diff_article'].round().astype(int).clip(lower=1)
 
         synthetic_maerkte['cluster'] = cluster_id

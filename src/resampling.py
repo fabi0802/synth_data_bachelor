@@ -1,6 +1,6 @@
 import pandas as pd
 import random
-from src.maerkte import kmeans_cluster_maerkte
+from maerkte import kmeans_cluster_maerkte
 
 def resampling_hochrechnung(df: pd.DataFrame, anzahl_neue_maerkte: int, seed: int = 42) -> pd.DataFrame:
     ''' 
