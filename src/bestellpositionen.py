@@ -30,6 +30,7 @@ def synth_bestellpositionen(df: pd.DataFrame, df_bestellungen: pd.DataFrame, syn
         how='left'
     ).rename(columns={'cluster': 'bestell_cluster'}).reset_index(drop=True)
 
+    # Wahrscheinlichkeit cluster sortiment
     prob_cl_sort = (
         orig_df.groupby('bestell_cluster')['Sortiment']
         .value_counts(normalize=True)
@@ -37,6 +38,7 @@ def synth_bestellpositionen(df: pd.DataFrame, df_bestellungen: pd.DataFrame, syn
         .reset_index()
     )
 
+    # wahrscheinlichkeit cluster, ortiment artikelnummer
     prob_cl_sort_artk = (
         orig_df.groupby(['bestell_cluster', 'Sortiment'])['Artikelnummer']
         .value_counts(normalize=True)
@@ -44,6 +46,7 @@ def synth_bestellpositionen(df: pd.DataFrame, df_bestellungen: pd.DataFrame, syn
         .reset_index()
     )
 
+    # wahrscheinlichkeit cluster, sortiment mengeinkolli
     prob_cl_sort_n = (
         orig_df.groupby(['bestell_cluster', 'Sortiment'])['MengeInKolli']
         .value_counts(normalize=True)
@@ -51,7 +54,7 @@ def synth_bestellpositionen(df: pd.DataFrame, df_bestellungen: pd.DataFrame, syn
         .reset_index()
     )
 
-    # ---- Lookups bauen (einmalig) ----
+    # Lookups bauen (einmalig 
     sort_dist = {}
     for bc, g in prob_cl_sort.groupby('bestell_cluster', sort=False):
         sort_dist[int(bc)] = (g['Sortiment'].to_numpy(), g['prob'].to_numpy(dtype=float))
